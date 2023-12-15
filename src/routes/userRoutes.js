@@ -28,6 +28,7 @@ router.post("/createBasicSevaInfo", async (req, res) => {
     });
     res.status(201).json({ message: "Seva created successfully" });
   } catch (error) {
+    console.log("error: ",error)
     return res.status(500).json(error);
   }
 });
@@ -87,6 +88,24 @@ router.post("/updateVariableSevaCalendar/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error updating Seva" });
+  }
+});
+
+router.get("/getAllSevaInfo", async (req, res) => {
+  try {
+    const allSevas = await sevas.findAll({
+      attributes: ['name', 'price'], 
+    });
+
+    const sevaInfoList = allSevas.map(seva => ({
+      name: seva.name,
+      price: seva.price,
+    }));
+
+    res.status(200).json(sevaInfoList);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error retrieving Seva information' });
   }
 });
 
