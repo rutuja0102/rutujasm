@@ -18,10 +18,32 @@ module.exports = (sequelize, DataTypes) => {
     price: DataTypes.INTEGER,
     description: DataTypes.STRING,
     tagline: DataTypes.STRING,
-    sevaScheduleType: DataTypes.STRING,
-    fixedScheduleType: DataTypes.STRING,
-    fixedDaysData: DataTypes.STRING,
-    variableDatesData: DataTypes.STRING
+    sevaScheduleType: {
+      type: DataTypes.ENUM("fixed", "variable"),
+      allowNull: true,   
+      field: "seva_schedule_type",
+    },
+    fixedScheduleType: {
+      type: DataTypes.ENUM(
+        "Weekly",
+        "Every 2 weeks",
+        "Every 3 weeks",
+        "Every 4 weeks",
+        "Does not repeat"
+      ),
+      allowNull: true,
+      field: "fixed_schedule_type",
+    },
+    fixedDaysData: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "fixed_days_data",
+    },
+    variableDatesData: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "variable_dates_data",
+    },
   }, {
     sequelize,
     modelName: 'seva',
