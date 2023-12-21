@@ -39,6 +39,16 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       field: "fixed_days_data",
     },
+    fixedStartDate: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "fixed_start_date",
+    },
+    fixedEndDate: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "fixed_end_date",
+    },
     variableDatesData: {
       type: DataTypes.STRING,
       allowNull: true,
