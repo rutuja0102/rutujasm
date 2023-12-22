@@ -17,7 +17,7 @@ router.post("/createBasicSevaInfo", async (req, res) => {
     };
     for (const field in requiredFields) {
       if (!req.body[field]) {
-        return res.status(400).json({ message: requiredFields[field] });
+        return res.status(500).json(requiredFields[field]);
       }
     }
     const newSeva = await sevas.create({
@@ -36,17 +36,20 @@ router.post("/createBasicSevaInfo", async (req, res) => {
 router.post("/updateSeva/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { fixedScheduleType, fixedDaysData } = req.body;
-    console.log("BOdy: ", fixedScheduleType);
+    const { fixedScheduleType, fixedDaysData, fixedStartDate, fixedEndDate } =
+      req.body;
+
     const foundSeva = await sevas.findByPk(id);
     if (!foundSeva) {
-      return res.status(404).json({ message: "Seva not found" });
+      return res.status(500).json("Seva not found");
     }
     foundSeva.fixedScheduleType = fixedScheduleType;
     foundSeva.fixedDaysData = fixedDaysData;
+    foundSeva.fixedStartDate = fixedStartDate;
+    foundSeva.fixedEndDate = fixedEndDate;
+
     await sevas.update(
       foundSeva,
-
       {
         where: {
           id,
@@ -55,10 +58,10 @@ router.post("/updateSeva/:id", async (req, res) => {
     );
     await foundSeva.save();
     res
-      .status(200)
+      .status(201)
       .json({ message: "Seva updated successfully", updatedSeva: foundSeva });
   } catch (error) {
-    res.status(500).json({ message: "Error updating Seva" });
+    res.status(500).json(error);
   }
 });
 
@@ -69,7 +72,7 @@ router.post("/updateVariableSevaCalendar/:id", async (req, res) => {
     console.log(variableDatesData);
     const foundSeva = await sevas.findByPk(id);
     if (!foundSeva) {
-      return res.status(404).json({ message: "Seva not found" });
+      return res.status(500).json("Seva not found");
     }
 
     foundSeva.variableDatesData = variableDatesData;
@@ -83,11 +86,11 @@ router.post("/updateVariableSevaCalendar/:id", async (req, res) => {
     await foundSeva.save();
 
     res
-      .status(200)
+      .status(201)
       .json({ message: "Seva updated successfully", updatedSeva: foundSeva });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error updating Seva" });
+    res.status(500).json(error);
   }
 });
 
