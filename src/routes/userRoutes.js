@@ -29,7 +29,6 @@ router.post("/createBasicSevaInfo", async (req, res) => {
     });
     res.status(201).json({ message: "Seva created successfully" });
   } catch (error) {
-    console.log("error: ",error)
     return res.status(500).json(error);
   }
 });
@@ -70,7 +69,7 @@ router.post("/updateVariableSevaCalendar/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { variableDatesData } = req.body;
-    console.log(variableDatesData);
+
     const foundSeva = await sevas.findByPk(id);
     if (!foundSeva) {
       return res.status(500).json("Seva not found");
