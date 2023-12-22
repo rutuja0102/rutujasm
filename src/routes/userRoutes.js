@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const sevas = require("../../database/models").seva;
+const { Sequelize } = require('sequelize');
 
 router.post("/createBasicSevaInfo", async (req, res) => {
   try {
@@ -109,6 +110,35 @@ router.get("/getAllSevaInfo", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error retrieving Seva information' });
+  }
+});
+
+router.post("/searchSeva", async (req, res) => {
+  try {
+    const { keyword } = req.body;
+
+    if (!keyword) {
+      return res.status(400).json({ message: 'Keyword is required for search' });
+    }
+
+    const searchResults = await sevas.findAll({
+      where:  {
+        [Sequelize.Op.or]: [
+          { name: { [Sequelize.Op.eq]: keyword } },  
+          { description: { [Sequelize.Op.eq]: keyword } },  
+        ],
+      },
+      attributes: ['name', 'price'],
+    });
+
+    if (searchResults.length === 0) {
+      return res.status(404).json({ message: 'No matches found' });
+    }
+
+    res.status(200).json(searchResults);
+  } catch (error) {
+    console.error("Error during search:", error);
+    res.status(500).json({ message: 'Error during search' });
   }
 });
 
