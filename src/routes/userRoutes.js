@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sevas = require("../../database/models").seva;
 const { Sequelize } = require('sequelize');
+const { sequelize } = require("../../database/models");
 
 router.post("/createBasicSevaInfo", async (req, res) => {
   try {
@@ -120,11 +121,25 @@ router.post("/searchSeva", async (req, res) => {
       return res.status(400).json({ message: 'Keyword is required for search' });
     }
 
+    const isSingleDigit = keyword.length === 1 && /^\d$/.test(keyword);
+
     const searchResults = await sevas.findAll({
-      where:  {
+      where: {
         [Sequelize.Op.or]: [
-          { name: { [Sequelize.Op.eq]: keyword } },  
-          { description: { [Sequelize.Op.eq]: keyword } },  
+          {
+            [Sequelize.Op.and]: [
+              { name: { [Sequelize.Op.iLike]: `${keyword}%` } },
+              Sequelize.literal('LENGTH(name) = 1') 
+            ]
+          },
+          {
+            [Sequelize.Op.and]: [
+              { price: isSingleDigit ? { [Sequelize.Op.eq]: parseInt(keyword) } : Sequelize.literal('FALSE') },
+              Sequelize.literal('LENGTH(CAST(price AS TEXT)) = 1') 
+            ]
+          },
+          Sequelize.literal(`LOWER(CAST(price AS TEXT)) LIKE LOWER('%${keyword}%')`),
+          { name: { [Sequelize.Op.iLike]: `%${keyword}%` } }, 
         ],
       },
       attributes: ['name', 'price'],
@@ -138,6 +153,43 @@ router.post("/searchSeva", async (req, res) => {
   } catch (error) {
     console.error("Error during search:", error);
     res.status(500).json({ message: 'Error during search' });
+  }
+});
+
+router.get("/getSevaInfoById/:id", async(req, res) => {
+  try{
+    const {id} = req.params;
+
+    const seva = await sevas.findByPk(id);
+    if(!seva)
+    {
+      return res.status(404).json({ message: 'Seva not found'});      
+    }
+    res.status(200).json(seva);
+  } 
+  catch(error){
+    console.error(error);
+    res.status(500).json({message: 'Error retrieving Seva information'});
+  }
+}); 
+
+router.put("/updateSevaInfo/:id", async (req , res) =>{
+  try{
+    const {id} = req.params;
+    const updatedSevaData = req.body;
+     
+    const existingSeva = await sevas.findByPk(id);
+    if(!existingSeva){
+      return res.status(400).json({message: 'Seva not found'});
+    }
+     await existingSeva.update(updatedSevaData);
+     const updatedSeva = await sevas.findByPk(id);
+
+     res.status(200).json(updatedSeva);
+  }
+  catch(error){
+     console.error(error);
+     res.status(500).json({message: 'Error updating seva information'});
   }
 });
 
