@@ -99,10 +99,6 @@ AWS.config.update({
   region: process.env.AWS_SES_REGION,
 });
 
-// console.log("AWS_ACCESS_KEY:", process.env.AWS_ACCESS_KEY);
-// console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY);
-// console.log("AWS_SES_REGION:", process.env.AWS_SES_REGION);
-
 const ses = new AWS.SES({
   apiVersion: "2010-12-01",
   region: process.env.AWS_SES_REGION,
