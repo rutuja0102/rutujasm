@@ -121,25 +121,11 @@ router.post("/searchSeva", async (req, res) => {
       return res.status(400).json({ message: 'Keyword is required for search' });
     }
 
-    const isSingleDigit = keyword.length === 1 && /^\d$/.test(keyword);
-
     const searchResults = await sevas.findAll({
-      where: {
+      where:  {
         [Sequelize.Op.or]: [
-          {
-            [Sequelize.Op.and]: [
-              { name: { [Sequelize.Op.iLike]: `${keyword}%` } },
-              Sequelize.literal('LENGTH(name) = 1') 
-            ]
-          },
-          {
-            [Sequelize.Op.and]: [
-              { price: isSingleDigit ? { [Sequelize.Op.eq]: parseInt(keyword) } : Sequelize.literal('FALSE') },
-              Sequelize.literal('LENGTH(CAST(price AS TEXT)) = 1') 
-            ]
-          },
-          Sequelize.literal(`LOWER(CAST(price AS TEXT)) LIKE LOWER('%${keyword}%')`),
-          { name: { [Sequelize.Op.iLike]: `%${keyword}%` } }, 
+          { name: { [Sequelize.Op.eq]: keyword } },  
+          { description: { [Sequelize.Op.eq]: keyword } },  
         ],
       },
       attributes: ['name', 'price'],
